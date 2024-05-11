@@ -1,0 +1,361 @@
+V1,V2,Name,Model trained on Learning rate,Model trained on warmup Learning Rate,Model trained on batch size,Model trained on number of steps,Model trained on Config version,Creation Time,Id,Tags,Owner,model/config,metrics/average_precision (last),detailed/learning_rate (last),train/learning_rate (last),metrics/ckpt-15/precision (last),metrics/ckpt-36/precision (last),metrics/ckpt-8/recall (last),metrics/ckpt-26/precision (last),metrics/ckpt-44/precision (last),metrics/ckpt-6/precision (last),metrics/ckpt-6/recall (last),metrics/ckpt-43/recall (last),metrics/ckpt-36/recall (last),metrics/ckpt-33/recall (last),metrics/ckpt-5/recall (last),metrics/ckpt-12/precision (last),metrics/ckpt-27/recall (last),metrics/ckpt-45/recall (last),metrics/ckpt-48/precision (last),metrics/ckpt-30/precision (last),metrics/ckpt-38/precision (last),metrics/ckpt-34/recall (last),metrics/ckpt-29/precision (last),metrics/ckpt-15/recall (last),metrics/ckpt-14/precision (last),metrics/ckpt-34/precision (last),metrics/ckpt-41/precision (last),metrics/ckpt-28/precision (last),metrics/ckpt-50/recall (last),metrics/ckpt-11/precision (last),metrics/ckpt-48/recall (last),metrics/ckpt-38/recall (last),metrics/ckpt-33/precision (last),metrics/ckpt-5/precision (last),metrics/ckpt-31/precision (last),metrics/ckpt-37/recall (last),metrics/ckpt-13/recall (last),metrics/ckpt-10/precision (last),metrics/ckpt-14/recall (last),metrics/ckpt-41/recall (last),metrics/ckpt-49/recall (last),metrics/ckpt-3/precision (last),metrics/ckpt-40/recall (last),metrics/ckpt-35/recall (last),metrics/ckpt-30/recall (last),metrics/ckpt-2/precision (last),metrics/ckpt-26/recall (last),metrics/ckpt-39/recall (last),metrics/ckpt-29/recall (last),metrics/ckpt-27/precision (last),metrics/ckpt-18/precision (last),metrics/ckpt-17/recall (last),metrics/ckpt-7/recall (last),metrics/ckpt-17/precision (last),metrics/ckpt-24/recall (last),metrics/ckpt-49/precision (last),metrics/ckpt-20/recall (last),metrics/ckpt-25/recall (last),metrics/ckpt-22/precision (last),metrics/ckpt-45/precision (last),metrics/ckpt-4/recall (last),metrics/ckpt-1/recall (last),metrics/ckpt-3/recall (last),metrics/ckpt-43/precision (last),metrics/ckpt-32/recall (last),metrics/ckpt-46/recall (last),metrics/ckpt-10/recall (last),metrics/ckpt-24/precision (last),metrics/ckpt-39/precision (last),metrics/ckpt-32/precision (last),metrics/ckpt-7/precision (last),metrics/ckpt-25/precision (last),metrics/ckpt-18/recall (last),metrics/ckpt-22/recall (last),metrics/ckpt-9/recall (last),metrics/ckpt-35/precision (last),metrics/ckpt-16/precision (last),metrics/ckpt-21/recall (last),metrics/ckpt-47/precision (last),metrics/ckpt-9/precision (last),metrics/mean_iou (last),metrics/ckpt-8/precision (last),metrics/ckpt-19/recall (last),metrics/ckpt-21/precision (last),metrics/ckpt-2/recall (last),metrics/ckpt-47/recall (last),metrics/ckpt-23/recall (last),metrics/ckpt-51/precision (last),metrics/ckpt-31/recall (last),metrics/ckpt-16/recall (last),metrics/ckpt-46/precision (last),metrics/ckpt-20/precision (last),metrics/ckpt-4/precision (last),metrics/ckpt-50/precision (last),metrics/ckpt-42/recall (last),metrics/ckpt-23/precision (last),metrics/ckpt-11/recall (last),metrics/ckpt-51/recall (last),metrics/ckpt-40/precision (last),metrics/ckpt-19/precision (last),metrics/ckpt-28/recall (last),metrics/ckpt-42/precision (last),metrics/ckpt-13/precision (last),metrics/ckpt-12/recall (last),metrics/ckpt-37/precision (last)
+"# Mask R-CNN with Inception Resnet v2 (no atrous)
+# Sync-trained on COCO (with 8 GPUs) with batch size 16 (1024x1024 resolution)
+# Initialized from Imagenet classification checkpoint
+# TF2-Compatible, *Not* TPU-Compatible
+#
+# Achieves XXX mAP on COCO
+
+model {
+  faster_rcnn {
+    number_of_stages: 3
+    num_classes: 2
+    image_resizer {
+      fixed_shape_resizer {
+        height: 1024
+        width: 1024
+        # pad_to_max_dimension: true
+      }
+    }
+    feature_extractor {
+      type: 'faster_rcnn_inception_resnet_v2_keras'
+    }
+    first_stage_anchor_generator {
+      grid_anchor_generator {
+        scales: [0.25, 0.5, 1.0, 2.0]
+        aspect_ratios: [0.5, 1.0, 2.0]
+        height_stride: 16
+        width_stride: 16
+      }
+    }
+    first_stage_box_predictor_conv_hyperparams {
+      op: CONV
+      regularizer {
+        l2_regularizer {
+          weight: 0.004  # Increased L2 regularization
+        }
+      }
+      initializer {
+        truncated_normal_initializer {
+          stddev: 0.01
+        }
+      }
+    }
+    first_stage_nms_score_threshold: 0.0
+    first_stage_nms_iou_threshold: 0.7
+    first_stage_max_proposals: 300
+    first_stage_localization_loss_weight: 2.0
+    first_stage_objectness_loss_weight: 1.0
+    initial_crop_size: 17
+    maxpool_kernel_size: 1
+    maxpool_stride: 1
+    second_stage_box_predictor {
+      mask_rcnn_box_predictor {
+        use_dropout: true  # Enable dropout
+        dropout_keep_probability: 0.5  # Set dropout probability
+        fc_hyperparams {
+          op: FC
+          regularizer {
+            l2_regularizer {
+              weight: 0.004  # Increased L2 regularization
+            }
+          }
+          initializer {
+            variance_scaling_initializer {
+              factor: 1.0
+              uniform: true
+              mode: FAN_AVG
+            }
+          }
+        }
+        mask_height: 33
+        mask_width: 33
+        mask_prediction_conv_depth: 0
+        mask_prediction_num_conv_layers: 4
+        conv_hyperparams {
+          op: CONV
+          regularizer {
+            l2_regularizer {
+              weight: 0.004  # Consistent L2 regularization throughout
+            }
+          }
+          initializer {
+            truncated_normal_initializer {
+              stddev: 0.01
+            }
+          }
+        }
+        predict_instance_masks: true
+      }
+    }
+    second_stage_post_processing {
+      batch_non_max_suppression {
+        score_threshold: 0.0
+        iou_threshold: 0.6
+        max_detections_per_class: 100
+        max_total_detections: 100
+      }
+      score_converter: SOFTMAX
+    }
+    second_stage_localization_loss_weight: 2.0
+    second_stage_classification_loss_weight: 1.0
+    second_stage_mask_prediction_loss_weight: 4.0
+    resize_masks: false
+  }
+}
+
+train_config: {
+  batch_size: 
+  num_steps:  # Increased number of steps for more thorough training
+  optimizer {
+    momentum_optimizer: {
+      learning_rate: {
+        cosine_decay_learning_rate {
+          learning_rate_base:  # Increased learning rate for better exploration
+          total_steps:
+          warmup_learning_rate: 
+          warmup_steps: 200  # Increased warmup period
+        }
+      }
+      momentum_optimizer_value: 0.9
+    }
+    use_moving_average: false
+  }
+  gradient_clipping_by_norm: 10.0
+  fine_tune_checkpoint: ""/home/rk42218/Building_Detection/garden_garden/mask_rcnn_inception_resnet_v2_1024x1024_coco17_gpu-8/checkpoint/ckpt-0""
+  fine_tune_checkpoint_type: ""detection""
+  from_detection_checkpoint: true
+  load_all_detection_checkpoint_vars: false 
+  fine_tune_checkpoint_version: V2
+    data_augmentation_options {
+      random_crop_image {
+        min_object_covered: 0.3
+        min_aspect_ratio: 0.75
+        max_aspect_ratio: 1.33
+        min_area: 0.5
+        max_area: 1.0
+      }
+    }
+}
+
+train_input_reader: {
+  label_map_path: ""/home/rk42218/DATA_SET_1024/data_split/label_map.pbtxt""
+  tf_record_input_reader {
+    input_path: ""/home/rk42218/DATA_SET_1024/data_split/train/train.record""
+  }
+  load_instance_masks: true
+  mask_type: PNG_MASKS
+}
+
+eval_config: {
+  metrics_set: ""coco_detection_metrics""
+  eval_instance_masks: true
+  use_moving_averages: false
+  batch_size: 1
+  include_metrics_per_category: true
+}
+
+eval_input_reader: {
+  label_map_path: ""/home/rk42218/DATA_SET_1024/data_split/label_map.pbtxt""
+  shuffle: false
+  num_epochs: 1
+  tf_record_input_reader {
+    input_path: ""/home/rk42218/DATA_SET_1024/data_split/val/val.record""
+  }
+  load_instance_masks: true
+  mask_type: PNG_MASKS
+}
+","# Mask R-CNN with Inception Resnet v2 (no atrous)
+# Sync-trained on COCO (with 8 GPUs) with batch size 16 (1024x1024 resolution)
+# Initialized from Imagenet classification checkpoint
+# TF2-Compatible, *Not* TPU-Compatible
+#
+# Achieves XXX mAP on COCO
+
+model {
+  faster_rcnn {
+    number_of_stages: 3
+    num_classes: 2
+    image_resizer {
+      fixed_shape_resizer {
+        height: 1024
+        width: 1024
+        # pad_to_max_dimension: true
+      }
+    }
+    feature_extractor {
+      type: 'faster_rcnn_inception_resnet_v2_keras'
+    }
+    first_stage_anchor_generator {
+      grid_anchor_generator {
+        scales: [0.25, 0.5, 1.0, 2.0]
+        aspect_ratios: [0.5, 1.0, 2.0]
+        height_stride: 16
+        width_stride: 16
+      }
+    }
+    first_stage_box_predictor_conv_hyperparams {
+      op: CONV
+      regularizer {
+        l2_regularizer {
+          weight: 0.0001  # Slightly lower weight for broader training
+        }
+      }
+      initializer {
+        truncated_normal_initializer {
+          stddev: 0.01
+        }
+      }
+    }
+    first_stage_nms_score_threshold: 0.0
+    first_stage_nms_iou_threshold: 0.7
+    first_stage_max_proposals: 300
+    first_stage_localization_loss_weight: 2.0
+    first_stage_objectness_loss_weight: 1.0
+    initial_crop_size: 17
+    maxpool_kernel_size: 1
+    maxpool_stride: 1
+    second_stage_box_predictor {
+      mask_rcnn_box_predictor {
+        use_dropout: true  # Enable dropout
+        dropout_keep_probability: 0.6  # Slightly higher keep probability
+        fc_hyperparams {
+          op: FC
+          regularizer {
+            l2_regularizer {
+              weight: 0.0001  # Adjusted L2 weight
+            }
+          }
+          initializer {
+            variance_scaling_initializer {
+              factor: 1.0
+              uniform: true
+              mode: FAN_AVG
+            }
+          }
+        }
+        mask_height: 33
+        mask_width: 33
+        mask_prediction_conv_depth: 0
+        mask_prediction_num_conv_layers: 4
+        conv_hyperparams {
+          op: CONV
+          regularizer {
+            l2_regularizer {
+              weight: 0.0001  # Consistent L2 regularization throughout
+            }
+          }
+          initializer {
+            truncated_normal_initializer {
+              stddev: 0.01
+            }
+          }
+        }
+        predict_instance_masks: true
+      }
+    }
+    second_stage_post_processing {
+      batch_non_max_suppression {
+        score_threshold: 0.0
+        iou_threshold: 0.6
+        max_detections_per_class: 100
+        max_total_detections: 100
+      }
+      score_converter: SOFTMAX
+    }
+    second_stage_localization_loss_weight: 2.0
+    second_stage_classification_loss_weight: 1.0
+    second_stage_mask_prediction_loss_weight: 4.0
+    resize_masks: false
+  }
+}
+
+train_config: {
+  batch_size: 
+  num_steps:  # Matching extended training regimen
+  optimizer {
+    momentum_optimizer: {
+      learning_rate: {
+        cosine_decay_learning_rate {
+          learning_rate_base: # Slightly lower to accommodate more robust data augmentation
+          total_steps:
+          warmup_learning_rate:
+          warmup_steps: 200  # Consistent with increased training complexity
+        }
+      }
+      momentum_optimizer_value: 0.9
+    }
+    use_moving_average: false
+  }
+  gradient_clipping_by_norm: 10.0
+  fine_tune_checkpoint: ""/home/rk42218/Building_Detection/garden_garden/mask_rcnn_inception_resnet_v2_1024x1024_coco17_gpu-8/checkpoint/ckpt-0""
+  fine_tune_checkpoint_type: ""detection""
+  from_detection_checkpoint: true
+  load_all_detection_checkpoint_vars: false 
+  fine_tune_checkpoint_version: V2
+  data_augmentation_options {
+    random_horizontal_flip {
+    }
+    random_adjust_brightness {
+      max_delta: 0.2
+    }
+    random_adjust_contrast {
+      min_delta: 0.8
+      max_delta: 1.2
+    }
+    random_adjust_saturation {
+      min_delta: 0.8
+      max_delta: 1.2
+    }
+    random_adjust_hue {
+      max_delta: 0.02
+    }
+    random_distort_color {
+      color_ordering: 1
+    }
+  }
+}
+
+train_input_reader: {
+  label_map_path: ""/home/rk42218/DATA_SET_1024/data_split/label_map.pbtxt""
+  tf_record_input_reader {
+    input_path: ""/home/rk42218/DATA_SET_1024/data_split/train/train.record""
+  }
+  load_instance_masks: true
+  mask_type: PNG_MASKS
+}
+
+eval_config: {
+  metrics_set: ""coco_detection_metrics""
+  eval_instance_masks: true
+  use_moving_averages: false
+  batch_size: 1
+  include_metrics_per_category: true
+}
+
+eval_input_reader: {
+  label_map_path: ""/home/rk42218/DATA_SET_1024/data_split/label_map.pbtxt""
+  shuffle: false
+  num_epochs: 1
+  tf_record_input_reader {
+    input_path: ""/home/rk42218/DATA_SET_1024/data_split/val/val.record""
+  }
+  load_instance_masks: true
+  mask_type: PNG_MASKS
+}
+",4000_32_5e6_v2.config,5E-06,5E-07,16,4000,V2,2024-04-23 14:25:08,TRAIN-85,"[""new_run"",""4000_32_5e6_v2""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/4000_32_5e6_v2.config,0.8757394514977930,1.50768300954951E-07,0.0,0.21875,,0.36000001430511500,,,0.1599999964237210,0.3199999928474430,,,,0.30000001192092900,0.23469388484954800,,,,,,,,0.4375,0.2142857164144520,,,,,0.2150000035762790,,,,0.15000000596046400,,,0.4444444477558140,0.20999999344348900,0.4285714328289030,,,0.10999999940395400,,,,0.08500000089406970,,,,,0.23076923191547400,0.44999998807907100,0.36000001430511500,0.22499999403953600,,,0.4615384638309480,,,,0.25,0.10000000149011600,0.2199999988079070,,,,0.41999998688697800,,,,0.18000000715255700,,0.4615384638309480,,0.4000000059604650,,0.21250000596046400,0.4615384638309480,,0.20000000298023200,0.0,0.18000000715255700,0.4615384638309480,0.23076923191547400,0.17000000178813900,,,,,0.42500001192092900,,0.23076923191547400,0.125,,,,0.4300000071525570,,,0.23076923191547400,,,0.2222222238779070,0.4693877696990970,
+,,4000_32_5e7_v2.config,5E-07,5E-08,16,4000,v2,2024-04-23 13:27:14,TRAIN-84,"[""new_run"",""4000_32_5e7_v2""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/4000_32_5e7_v2.config,0.519412813190371,1.50768304507665E-08,0.0,0.11500000208616300,,0.20000000298023200,,,0.07999999821186070,0.1599999964237210,,,,0.15000000596046400,0.11500000208616300,,,,,,,,0.23000000417232500,0.11500000208616300,,,,,0.11500000208616300,,,,0.07500000298023220,,,0.23000000417232500,0.10499999672174500,0.23000000417232500,,,0.029999999329447700,,,,0.014999999664723900,,,,,0.11500000208616300,0.23000000417232500,0.18000000715255700,0.11500000208616300,,,0.23000000417232500,,,,0.12999999523162800,0.019999999552965200,0.05999999865889550,,,,0.20999999344348900,,,,0.09000000357627870,,0.23000000417232500,,0.20999999344348900,,0.11500000208616300,0.23000000417232500,,0.10499999672174500,0.0,0.10000000149011600,0.23000000417232500,0.11500000208616300,0.029999999329447700,,,,,0.23000000417232500,,0.11500000208616300,0.06499999761581420,,,,0.23000000417232500,,,0.11500000208616300,,,0.11500000208616300,0.23000000417232500,
+,,2000_32_2e6_v2.config,2E-06,2E-07,16,2000,v2,2024-04-23 12:54:23,TRAIN-83,"[""2000_32_2e6_v2"",""new_run""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/2000_32_2e6_v2.config,0.2604651297442620,2.33955375961159E-07,0.0,,,0.25999999046325700,,,0.125,0.25,,,,0.20999999344348900,,,,,,,,,,,,,,,0.13500000536441800,,,,0.10499999672174500,,,,0.14499999582767500,,,,0.10499999672174500,,,,0.05999999865889550,,,,,,,0.2800000011920930,,,,,,,,0.1899999976158140,0.10000000149011600,0.20999999344348900,,,,0.28999999165535000,,,,0.14000000059604600,,,,0.2800000011920930,,,,,0.14000000059604600,0.0,0.12999999523162800,,,0.11999999731779100,,,,,,,,0.0949999988079071,,,,0.27000001072883600,,,,,,,,
+,,2000_32_2e7_v2.config,2E-07,2E-08,16,2000,v2,2024-04-23 12:21:26,TRAIN-82,"[""new_run"",""2000_32_2e7_v2""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/2000_32_2e7_v2.config,0.050800039898604200,2.33955379513873E-08,0.0,,,0.019999999552965200,,,0.004999999888241290,0.009999999776482580,,,,0.009999999776482580,,,,,,,,,,,,,,,0.009999999776482580,,,,0.004999999888241290,,,,0.009999999776482580,,,,0.0,,,,0.0,,,,,,,0.019999999552965200,,,,,,,,0.0,0.0,0.0,,,,0.019999999552965200,,,,0.009999999776482580,,,,0.019999999552965200,,,,,0.009999999776482580,0.0,0.009999999776482580,,,0.0,,,,,,,,0.0,,,,0.019999999552965200,,,,,,,,
+,,2000_32_5e7_v1.config,5E-07,5E-08,16,2000,v1,2024-04-23 11:47:25,TRAIN-81,"[""new_run"",""2000_32_5e7_v1""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/2000_32_5e7_v1.config,0.1653995495289560,5.84888439902898E-08,0.0,,,0.30000001192092900,,,0.14499999582767500,0.28999999165535000,,,,0.25999999046325700,,,,,,,,,,,,,,,0.15000000596046400,,,,0.12999999523162800,,,,0.15000000596046400,,,,0.07000000029802320,,,,0.03500000014901160,,,,,,,0.3100000023841860,,,,,,,,0.1899999976158140,0.029999999329447700,0.14000000059604600,,,,0.30000001192092900,,,,0.1550000011920930,,,,0.30000001192092900,,,,,0.15000000596046400,0.0,0.15000000596046400,,,0.07000000029802320,,,,,,,,0.0949999988079071,,,,0.30000001192092900,,,,,,,,
+,,2000_32_5e6_v1.config,5E-06,5E-07,16,2000,v1,2024-04-23 11:15:20,TRAIN-80,"[""2000_32_5e6_v1"",""new_run""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/2000_32_5e6_v1.config,0.5249612955376510,5.84888425692043E-07,0.0,,,0.11999999731779100,,,0.05000000074505810,0.10000000149011600,,,,0.10000000149011600,,,,,,,,,,,,,,,0.05999999865889550,,,,0.05000000074505810,,,,0.05999999865889550,,,,0.03999999910593030,,,,0.004999999888241290,,,,,,,0.11999999731779100,,,,,,,,0.10000000149011600,0.0,0.07999999821186070,,,,0.11999999731779100,,,,0.05999999865889550,,,,0.11999999731779100,,,,,0.05999999865889550,0.0,0.05999999865889550,,,0.009999999776482580,,,,,,,,0.05000000074505810,,,,0.11999999731779100,,,,,,,,
+,,4000_32_2e7_v1.config,2E-07,2E-08,16,4000,v1,2024-04-23 10:18:59,TRAIN-79,"[""new_run"",""4000_32_2e7_v1""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/4000_32_2e7_v1.config,0.18369908518847000,6.03073235794227E-09,0.0,0.019999999552965200,,0.07000000029802320,,,0.03500000014901160,0.07000000029802320,,,,0.07000000029802320,0.03500000014901160,,,,,,,,0.03999999910593030,0.019999999552965200,,,,,0.03500000014901160,,,,0.03500000014901160,,,0.05000000074505810,0.03500000014901160,0.03999999910593030,,,0.05000000074505810,,,,0.05000000074505810,,,,,0.019999999552965200,0.03999999910593030,0.07000000029802320,0.019999999552965200,,,0.03999999910593030,,,,0.09000000357627870,0.10000000149011600,0.10000000149011600,,,,0.07000000029802320,,,,0.03500000014901160,,0.03999999910593030,,0.07000000029802320,,0.019999999552965200,0.03999999910593030,,0.03500000014901160,0.0,0.03500000014901160,0.03999999910593030,0.019999999552965200,0.10000000149011600,,,,,0.03999999910593030,,0.019999999552965200,0.04500000178813930,,,,0.07000000029802320,,,0.019999999552965200,,,0.02500000037252900,0.07000000029802320,
+,,4000_32_2e6_v1.config,2E-06,2E-07,16,4000,v1,2024-04-23 09:20:03,TRAIN-78,"[""4000_32_2e6_v1"",""new_run""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/4000_32_2e6_v1.config,0.8124219379387800,6.03073218030659E-08,0.0,0.08500000089406970,,0.14000000059604600,,,0.054999999701976800,0.10999999940395400,,,,0.10999999940395400,0.09000000357627870,,,,,,,,0.17000000178813900,0.07999999821186070,,,,,0.07500000298023220,,,,0.054999999701976800,,,0.17000000178813900,0.06499999761581420,0.1599999964237210,,,0.07000000029802320,,,,0.07999999821186070,,,,,0.08500000089406970,0.17000000178813900,0.10999999940395400,0.08500000089406970,,,0.17000000178813900,,,,0.14000000059604600,0.1599999964237210,0.14000000059604600,,,,0.12999999523162800,,,,0.054999999701976800,,0.17000000178813900,,0.14000000059604600,,0.08500000089406970,0.17000000178813900,,0.07000000029802320,0.0,0.07000000029802320,0.17000000178813900,0.08500000089406970,0.1599999964237210,,,,,0.17000000178813900,,0.08500000089406970,0.07000000029802320,,,,0.15000000596046400,,,0.08500000089406970,,,0.08500000089406970,0.18000000715255700,
+,,4000_32_2e6_v2.config,2E-06,2E-07,16,4000,v2,2024-04-23 08:23:21,TRAIN-77,"[""new_run"",""4000_32_2e6_v2""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/4000_32_2e6_v2.config,0.15306078766736100,5.41827098743397E-08,0.0,0.07500000298023220,,0.10000000149011600,,,0.02500000037252900,0.05000000074505810,,,,0.03999999910593030,0.06499999761581420,,,,,,,,0.15000000596046400,0.07500000298023220,,,,,0.06499999761581420,,,,0.019999999552965200,,,0.15000000596046400,0.06499999761581420,0.15000000596046400,,,0.004999999888241290,,,,0.0,,,,,0.08500000089406970,0.17000000178813900,0.05000000074505810,0.08500000089406970,,,0.17000000178813900,,,,0.03999999910593030,0.0,0.009999999776482580,,,,0.12999999523162800,,,,0.02500000037252900,,0.17000000178813900,,0.11999999731779100,,0.07500000298023220,0.17000000178813900,,0.05999999865889550,0.0,0.05000000074505810,0.17000000178813900,0.08500000089406970,0.0,,,,,0.15000000596046400,,0.08500000089406970,0.019999999552965200,,,,0.12999999523162800,,,0.08500000089406970,,,0.07500000298023220,0.12999999523162800,
+,,4000_32_2e7_v2.config,2E-07,2E-08,16,4000,v2,2024-04-23 07:25:44,TRAIN-76,"[""new_run"",""4000_32_2e7_v2""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/4000_32_2e7_v2.config,0.11799730715800500,5.41827072098045E-09,0.0,0.014999999664723900,,0.029999999329447700,,,0.009999999776482580,0.019999999552965200,,,,0.019999999552965200,0.014999999664723900,,,,,,,,0.029999999329447700,0.014999999664723900,,,,,0.014999999664723900,,,,0.009999999776482580,,,0.029999999329447700,0.014999999664723900,0.029999999329447700,,,0.009999999776482580,,,,0.009999999776482580,,,,,0.014999999664723900,0.029999999329447700,0.029999999329447700,0.014999999664723900,,,0.029999999329447700,,,,0.019999999552965200,0.019999999552965200,0.019999999552965200,,,,0.029999999329447700,,,,0.014999999664723900,,0.029999999329447700,,0.029999999329447700,,0.014999999664723900,0.029999999329447700,,0.014999999664723900,0.0,0.014999999664723900,0.029999999329447700,0.014999999664723900,0.019999999552965200,,,,,0.029999999329447700,,0.014999999664723900,0.009999999776482580,,,,0.029999999329447700,,,0.014999999664723900,,,0.014999999664723900,0.029999999329447700,
+,,2000_32_5e6_v2.config,5E-06,5E-07,16,2000,v2,2024-04-23 06:53:04,TRAIN-75,"[""new_run"",""2000_32_5e6_v2""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/2000_32_5e6_v2.config,3.986558925360440,5.84888425692043E-07,0.0,,,0.2800000011920930,,,0.125,0.25,,,,0.23999999463558200,,,,,,,,,,,,,,,0.12999999523162800,,,,0.11999999731779100,,,,0.12999999523162800,,,,0.10000000149011600,,,,0.054999999701976800,,,,,,,0.25,,,,,,,,0.23000000417232500,0.07999999821186070,0.20000000298023200,,,,0.25999999046325700,,,,0.125,,,,0.2800000011920930,,,,,0.14000000059604600,0.0,0.14000000059604600,,,0.10999999940395400,,,,,,,,0.11500000208616300,,,,0.25999999046325700,,,,,,,,
+,,2000_32_5e7_v2.config,5E-07,5E-08,16,2000,v2,2024-04-23 06:17:57,TRAIN-74,"[""new_run"",""2000_32_5e7_v2""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/2000_32_5e7_v2.config,0.364741514306143,5.84888439902898E-08,0.0,,,0.07999999821186070,,,0.03500000014901160,0.07000000029802320,,,,0.07999999821186070,,,,,,,,,,,,,,,0.04500000178813930,,,,0.03999999910593030,,,,0.04500000178813930,,,,0.029999999329447700,,,,0.02500000037252900,,,,,,,0.07999999821186070,,,,,,,,0.07999999821186070,0.05000000074505810,0.05999999865889550,,,,0.09000000357627870,,,,0.03999999910593030,,,,0.07999999821186070,,,,,0.03999999910593030,0.0,0.03999999910593030,,,0.05000000074505810,,,,,,,,0.03999999910593030,,,,0.09000000357627870,,,,,,,,
+,,2000_32_2e7_v1.config,2E-07,2E-08,16,2000,v1,2024-04-23 05:43:02,TRAIN-73,"[""new_run"",""2000_32_2e7_v1""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/2000_32_2e7_v1.config,0.11086087535619700,2.33955379513873E-08,0.0,,,0.23999999463558200,,,0.10000000149011600,0.20000000298023200,,,,0.1899999976158140,,,,,,,,,,,,,,,0.125,,,,0.0949999988079071,,,,0.125,,,,0.07000000029802320,,,,0.05000000074505810,,,,,,,0.2199999988079070,,,,,,,,0.1599999964237210,0.10000000149011600,0.14000000059604600,,,,0.25,,,,0.10999999940395400,,,,0.25,,,,,0.125,0.0,0.11999999731779100,,,0.10000000149011600,,,,,,,,0.07999999821186070,,,,0.25,,,,,,,,
+,,2000_32_2e6_v1.config,2E-06,2E-07,16,2000,v1,2024-04-23 05:07:48,TRAIN-72,"[""new_run"",""2000_32_2e6_v1""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/2000_32_2e6_v1.config,0.1981503463312980,2.33955375961159E-07,0.0,,,0.2800000011920930,,,0.125,0.25,,,,0.20999999344348900,,,,,,,,,,,,,,,0.15000000596046400,,,,0.10499999672174500,,,,0.15000000596046400,,,,0.09000000357627870,,,,0.03500000014901160,,,,,,,0.25,,,,,,,,0.23000000417232500,0.009999999776482580,0.18000000715255700,,,,0.30000001192092900,,,,0.125,,,,0.2800000011920930,,,,,0.14000000059604600,0.0,0.14000000059604600,,,0.07000000029802320,,,,,,,,0.11500000208616300,,,,0.30000001192092900,,,,,,,,
+,,4000_32_5e7_v1.config,5E-07,5E-08,16,4000,v1,2024-04-23 04:10:47,TRAIN-71,"[""new_run"",""4000_32_5e7_v1""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/4000_32_5e7_v1.config,1.119951333680000,1.35456774685849E-08,0.0,0.07500000298023220,,0.12999999523162800,,,0.054999999701976800,0.10999999940395400,,,,0.09000000357627870,0.07500000298023220,,,,,,,,0.15000000596046400,0.07500000298023220,,,,,0.07500000298023220,,,,0.04500000178813930,,,0.15000000596046400,0.07500000298023220,0.15000000596046400,,,0.029999999329447700,,,,0.02500000037252900,,,,,0.07500000298023220,0.15000000596046400,0.11999999731779100,0.07500000298023220,,,0.15000000596046400,,,,0.09000000357627870,0.05000000074505810,0.05999999865889550,,,,0.15000000596046400,,,,0.05999999865889550,,0.15000000596046400,,0.14000000059604600,,0.07500000298023220,0.15000000596046400,,0.07000000029802320,0.0,0.06499999761581420,0.15000000596046400,0.07500000298023220,0.05000000074505810,,,,,0.15000000596046400,,0.07500000298023220,0.04500000178813930,,,,0.15000000596046400,,,0.07500000298023220,,,0.07500000298023220,0.15000000596046400,
+,,4000_32_5e6_v1.config,5E-06,5E-07,16,4000,v1,2024-04-23 03:13:32,TRAIN-70,"[""new_run"",""4000_32_5e6_v1""]",ruthikkale27,/home/rk42218/Building_Detection/Config_new/4000_32_5e6_v1.config,3.914257143624130,1.35456772909492E-07,0.0,0.17499999701976800,,0.3414634168148040,,,0.13846154510974900,0.2769230902194980,,,,0.27000001072883600,0.1818181872367860,,,,,,,,0.3499999940395360,0.1818181872367860,,,,,0.17307692766189600,,,,0.13500000536441800,,,0.3636363744735720,0.1607142835855480,0.3636363744735720,,,0.11500000208616300,,,,0.12999999523162800,,,,,0.1875,0.3529411852359770,0.25,0.1764705926179890,,,0.3333333432674410,,,,0.25,0.25,0.23000000417232500,,,,0.3214285671710970,,,,0.125,,0.375,,0.3636363744735720,,0.1944444477558140,0.3333333432674410,,0.1818181872367860,0.0,0.17073170840740200,0.3333333432674410,0.1666666716337200,0.25999999046325700,,,,,0.3888888955116270,,0.1666666716337200,0.125,,,,0.3461538553237920,,,0.1666666716337200,,,0.1818181872367860,0.3636363744735720,
