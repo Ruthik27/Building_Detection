@@ -96,3 +96,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <img width="409" alt="image" src="https://github.com/Ruthik27/Building_Detection/assets/62241739/4c4df0c3-be42-4023-bede-171b63e300fa">
 
 ---
+
+https://www.cviog.uga.edu/information-technology/
+
+https://gacrc.uga.edu/
