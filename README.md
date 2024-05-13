@@ -91,8 +91,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-<img width="392" alt="image" src="https://github.com/Ruthik27/Building_Detection/assets/62241739/f2be2c60-cc16-42bd-94fb-3ce3d14311f7">
-
+<img width="410" alt="image" src="https://github.com/Ruthik27/Building_Detection/assets/62241739/5283e144-4209-4b53-836b-e0a5c13ccd33">
 
 <img width="409" alt="image" src="https://github.com/Ruthik27/Building_Detection/assets/62241739/cd357b20-f5f3-42cc-884d-75042cd12585">
 
